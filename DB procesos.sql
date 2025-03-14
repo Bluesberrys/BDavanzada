@@ -29,7 +29,7 @@ CREATE TABLE ESTUDIANTE (
     NOMBRE VARCHAR(15),
     INICIAL CHAR(1),
     ID_MATERIA VARCHAR(3),
-    CONSTRAINT A_AREA 
+    CONSTRAINT A_AREA
     FOREIGN KEY (ID_MATERIA) REFERENCES AREA(ID_MATERIA)
 );
 
@@ -44,7 +44,7 @@ CREATE TABLE INSCRIPCION (
     FOREIGN KEY (ID_ESTUDIANTE) REFERENCES ESTUDIANTE(ID_ESTUDIANTE)
 );
 
-insert all 
+insert all
     INTO AREA VALUES ('MAT', 'Matematicas')
     INTO AREA VALUES ('FIl', 'Filosofia')
     INTO AREA VALUES ('ING', 'Literatura inglesa')
@@ -87,7 +87,7 @@ CREATE OR REPLACE PROCEDURE CONSULTA (
     V_NOMBRE OUT ESTUDIANTE.NOMBRE%TYPE,
     V_AREA_MATERIA OUT AREA.ID_MATERIA%TYPE
 )
-IS 
+IS
 BEGIN
     SELECT APELLIDO, NOMBRE, ID_MATERIA
     INTO V_APELLIDO, V_NOMBRE, V_AREA_MATERIA
@@ -119,7 +119,7 @@ CREATE OR REPLACE PROCEDURE formato_tel (
 
 VARIABLE g_telefono VARCHAR2(15);
 
-BEGIN 
+BEGIN
     :g_telefono := '8006330575';
 END;
 /
@@ -130,7 +130,7 @@ PRINT g_telefono;
 
 
 
-SELECT 
+SELECT
     ESTUDIANTE.NOMBRE,
     ESTUDIANTE.APELLIDO,
     AREA.DESCRIPCION_MATERIA,
@@ -147,7 +147,7 @@ CREATE OR REPLACE PROCEDURE lectura IS
     CURSOR TABLA_VIRTUAL IS
         SELECT * FROM ESTUDIANTE;
         ARREGLO TABLA_VIRTUAL%ROWTYPE;
-BEGIN 
+BEGIN
     OPEN TABLA_VIRTUAL;
     FETCH TABLA_VIRTUAL INTO ARREGLO;
     WHILE TABLA_VIRTUAL%FOUND LOOP
@@ -175,8 +175,6 @@ BEGIN
 END;
 /
 
-
-
 CREATE OR REPLACE PROCEDURE PARAMETROS(v_ap IN Varchar)
 AS
     CURSOR CR_parametro (v_Apellido IN Varchar2)
@@ -192,12 +190,11 @@ END;
 
 EXEC PARAMETROS('Lopez');
 
-
 -- Desarrollar un procedimiento que muestra los cursos en que esté inscrito un alumno cuyo id, sea recibido como parámetro.
 -- El procedimiento deberá mostrar:
 -- El alumno Nombre apellido está inscrito en los cursos siguientes:
--- Numero de curso 1 Nombre curso 1 Créditos 1 
--- Numero de curso 2 Nombre curso 2 Créditos 2 
+-- Numero de curso 1 Nombre curso 1 Créditos 1
+-- Numero de curso 2 Nombre curso 2 Créditos 2
 -- Numero de curso N Nombre curso N Créditos N
 CREATE OR REPLACE PROCEDURE INSCRITO(V_ID IN VARCHAR2) AS
     CURSOR CR_INSCRITO (V_ID_ESTUDIANTE IN VARCHAR2) IS
@@ -222,15 +219,11 @@ END;
 
 EXEC INSCRITO('2907');
 
-CREATE TABLE CLIENTES (
-    CODIGO VARCHAR(2),
-    NOMBRE VARCHAR(15),
-    LIMITE NUMBER(8,2)
-);
+
 
 CREATE OR REPLACE TRIGGER INSERCION
     AFTER INSERT ON CLIENTES
-    FOR EACH ROW 
+    FOR EACH ROW
 BEGIN
     DBMS_OUTPUT.PUT_LINE('Se ha insertado un nuevo cliente');
 END;
@@ -238,6 +231,8 @@ END;
 
 INSERT INTO CLIENTES VALUES ('C1', 'Juan Perez', 1000);
 INSERT INTO CLIENTES VALUES ('C2', 'Maria Lopez', 2000);
+
+
 
 CREATE OR REPLACE TRIGGER AUDITAR_CLIENTES
 AFTER UPDATE ON CLIENTES
@@ -255,3 +250,122 @@ UPDATE CLIENTES SET LIMITE = 1500 WHERE CODIGO = 'C1';
 UPDATE CLIENTES SET LIMITE = 2500 WHERE CODIGO = 'C2';
 
 SELECT * FROM AUDITOR;
+
+
+
+-- CREATE OR REPLACE VIEW Clientes_Estados AS
+--     SELECT CODIGO, NOMBRE, LIMITE, ESTADO, NOMBRE_ESTADO
+--     FROM CLIENTES, ESTADOS
+--     WHERE CLIENTES.ESTADO = ESTADOS.CODIGO_ESTADO;
+-- /
+
+CREATE TABLE CLIENTES (
+    CODIGO VARCHAR(2) PRIMARY KEY,
+    NOMBRE VARCHAR(15),
+    LIMITE NUMBER(8,2),
+    ESTADO VARCHAR(2)
+);
+
+CREATE TABLE ESTADOS (
+    CODIGO_ESTADO VARCHAR(2) PRIMARY KEY,
+    NOMBRE_ESTADO VARCHAR(15)
+);
+
+
+DROP TABLE CLIENTES;
+DROP TABLE ESTADOS;
+PURGE RECYCLEBIN;
+
+
+INSERT INTO ESTADOS VALUES ('01','Queretaro');
+INSERT INTO ESTADOS VALUES ('02','San Luis Potosi');
+INSERT INTO ESTADOS VALUES ('03','Coahuila');
+INSERT INTO ESTADOS VALUES ('04','Durango');
+INSERT INTO ESTADOS VALUES ('05','Guanajuato');
+INSERT INTO ESTADOS VALUES ('06','Tamaulipas');
+INSERT INTO CLIENTES VALUES ('14', 'Juan Perez', 1000, '01');
+INSERT INTO CLIENTES VALUES ('15', 'Maria Lopez', 2000, '02');
+INSERT INTO CLIENTES VALUES ('16', 'Pedro Martinez', 3000, '03');
+
+SELECT * FROM Clientes_Estados;
+SELECT * FROM AUDITOR;
+
+
+CREATE OR REPLACE TRIGGER SUSTITUCION
+INSTEAD OF DELETE OR INSERT
+ON Clientes_Estados
+FOR EACH ROW
+BEGIN
+    IF DELETING THEN
+        INSERT INTO AUDITOR VALUES ('Borrado ' || :OLD.LIMITE);
+    END IF;
+    IF INSERTING THEN
+        INSERT INTO AUDITOR VALUES ('Insertado ' || :NEW.LIMITE);
+    END IF;
+END;
+/
+
+DELETE FROM Clientes_Estados WHERE CODIGO = '14';
+
+INSERT INTO Clientes_Estados VALUES ('17', 'Ana Garcia', 4000, '02', 'San Luis Potosi');
+
+
+GRANT ADMINISTER DATABASE TRIGGER TO BLUE;
+
+CREATE TABLE CONEXIONES (
+    USUARIO VARCHAR2(50),
+    MOMENTO DATE,
+    EVENTO VARCHAR2(50)
+);
+
+CREATE OR REPLACE TRIGGER EJEMPLO
+AFTER LOGON ON DATABASE
+BEGIN
+    INSERT INTO CONEXIONES VALUES (ORA_LOGIN_USER, SYSTIMESTAMP, ORA_SYSEVENT);
+END;
+/
+
+
+
+CREATE OR REPLACE PROCEDURE EJEMPLO IS
+V_APELLIDO ESTUDIANTE.APELLIDO%TYPE;
+BEGIN
+    SELECT APELLIDO INTO v_Apellido
+    FROM ESTUDIANTE
+    WHERE APELLIDO = 'Samantha';
+EXCEPTION
+    WHEN NO_DATA_FOUND THEN
+        DBMS_OUTPUT.PUT_LINE('No se arrojaron datos: NO_DATA_FOUND');
+    WHEN TOO_MANY_ROWS THEN
+        DBMS_OUTPUT.PUT_LINE('Demasiados registros');
+    WHEN OTHERS THEN
+        DBMS_OUTPUT.PUT_LINE('Error no previsto');
+END;
+/
+
+EXEC EJEMPLO;
+
+SELECT TEXT FROM ALL_SOURCE WHERE NAME = 'EJEMPLO';
+
+
+DECLARE 
+    EXCEPCION_DE_EDAD EXCEPTION;
+    EDAD NUMBER;
+BEGIN
+    EDAD:=179;
+    RAISE EXCEPCION_DE_EDAD;
+EXCEPTION 
+    WHEN EXCEPCION_DE_EDAD THEN 
+        DBMS_OUTPUT.PUT_LINE('!No es posible!');
+END;
+/
+
+-- usando parametros inserte los datos de tres nuevos estudiantes en la tabla estudiantes
+-- si el estudiante ya existe crear (previamente) una tabla llamada ERR con las columnas: numero y descripcion, e insertar una breve descripcion del error 
+-- si algun dato es de mayor longitud, introducir una breve descripcion en ERR
+-- cualquier otro error no considerado, insertar una breve descripcion en ERR
+
+CREATE TABLE ERR (
+    NUMERO NUMBER,
+    DESCRIPCION VARCHAR(50)
+);
