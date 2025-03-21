@@ -402,4 +402,73 @@ EXEC INSERTAR_ESTUDIANTE('5145', 'Santana', 'Luis', 'M', 'ING');
 SELECT * FROM ESTUDIANTE;
 SELECT * FROM ERR;
 
-DELETE FROM ERR;
+CREATE OR REPLACE FUNCTION Lee_Id_Materia
+(V_ID_ESTUDIANTE IN ESTUDIANTE.ID_ESTUDIANTE%TYPE)
+    RETURN VARCHAR2
+IS
+    V_MATERIA ESTUDIANTE.ID_MATERIA%TYPE;
+BEGIN
+    SELECT ID_MATERIA INTO V_MATERIA
+    FROM ESTUDIANTE
+    WHERE ID_ESTUDIANTE = V_ID_ESTUDIANTE;
+    RETURN V_MATERIA;
+    END;
+/
+
+//START Lee_Id_Materia
+VARIABLE G_MATERIA VARCHAR2(3)
+EXECUTE :G_MATERIA :=Lee_Id_Materia('4019')
+PRINT G_MATERIA
+
+SELECT Lee_Id_Materia('4019') FROM DUAL;
+
+
+CREATE OR REPLACE FUNCTION Calculadora(
+    numero1 IN NUMBER,
+    numero2 IN NUMBER,
+    operador IN CHAR
+) RETURN NUMBER IS
+    resultado NUMBER;
+BEGIN
+    CASE operador
+        WHEN '+' THEN
+            resultado := numero1 + numero2;
+        WHEN '-' THEN
+            resultado := numero1 - numero2;
+        WHEN '*' THEN
+            resultado := numero1 * numero2;
+        WHEN '/' THEN
+            IF numero2 = 0 THEN
+                RAISE_APPLICATION_ERROR(-20001, 'No se puede dividir entre cero');
+            END IF;
+            resultado := numero1 / numero2;
+        ELSE
+            RAISE_APPLICATION_ERROR(-20002, 'Operador no válido');
+    END CASE;
+    RETURN resultado;
+END;
+/
+------------ Operacion 1:
+VARIABLE g_numero NUMBER;
+------------
+EXECUTE :g_numero:=calculadora(1, 2, '+');
+------------
+PRINT g_numero;
+------------ Operacion 2:
+VARIABLE g_numero NUMBER;
+------------
+EXECUTE :g_numero:=calculadora(2, 3, '-');
+------------
+PRINT g_numero;
+------------ Operacion 3:
+VARIABLE g_numero NUMBER;
+------------ 
+EXECUTE :g_numero:=calculadora(4, 5, '*');
+------------
+PRINT g_numero;
+------------ Operacion 4:
+VARIABLE g_numero NUMBER;
+------------
+EXECUTE :g_numero:=calculadora(6, 2, '/');
+------------
+PRINT g_numero;
