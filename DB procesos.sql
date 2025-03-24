@@ -423,52 +423,39 @@ PRINT G_MATERIA
 SELECT Lee_Id_Materia('4019') FROM DUAL;
 
 
-CREATE OR REPLACE FUNCTION Calculadora(
-    numero1 IN NUMBER,
-    numero2 IN NUMBER,
-    operador IN CHAR
-) RETURN NUMBER IS
-    resultado NUMBER;
+-- crear funcion de calculadora que reciba dos numeros y un operador y regrese el resultado
+-- si el operador no es valido, regresar un error
+-- si se intenta dividir entre cero, regresar un error
+
+CREATE OR REPLACE FUNCTION calculadora
+(V_NUM1 IN NUMBER, V_NUM2 IN NUMBER, V_OPERADOR IN VARCHAR2)
+    RETURN NUMBER
+IS
+    V_RESULTADO NUMBER;
 BEGIN
-    CASE operador
-        WHEN '+' THEN
-            resultado := numero1 + numero2;
-        WHEN '-' THEN
-            resultado := numero1 - numero2;
-        WHEN '*' THEN
-            resultado := numero1 * numero2;
+    CASE V_OPERADOR
+        WHEN '+' THEN V_RESULTADO := V_NUM1 + V_NUM2;
+        WHEN '-' THEN V_RESULTADO := V_NUM1 - V_NUM2;
+        WHEN '*' THEN V_RESULTADO := V_NUM1 * V_NUM2;
         WHEN '/' THEN
-            IF numero2 = 0 THEN
+            IF V_NUM2 = 0 THEN
                 RAISE_APPLICATION_ERROR(-20001, 'No se puede dividir entre cero');
+            ELSE
+                V_RESULTADO := V_NUM1 / V_NUM2;
             END IF;
-            resultado := numero1 / numero2;
         ELSE
-            RAISE_APPLICATION_ERROR(-20002, 'Operador no válido');
+            RAISE_APPLICATION_ERROR(-20002, 'Operador no valido');
     END CASE;
-    RETURN resultado;
+    RETURN V_RESULTADO;
 END;
 /
------------- Operacion 1:
+
 VARIABLE g_numero NUMBER;
-------------
 EXECUTE :g_numero:=calculadora(1, 2, '+');
-------------
 PRINT g_numero;
------------- Operacion 2:
-VARIABLE g_numero NUMBER;
-------------
 EXECUTE :g_numero:=calculadora(2, 3, '-');
-------------
 PRINT g_numero;
------------- Operacion 3:
-VARIABLE g_numero NUMBER;
------------- 
 EXECUTE :g_numero:=calculadora(4, 5, '*');
-------------
 PRINT g_numero;
------------- Operacion 4:
-VARIABLE g_numero NUMBER;
-------------
 EXECUTE :g_numero:=calculadora(6, 2, '/');
-------------
 PRINT g_numero;
