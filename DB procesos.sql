@@ -459,3 +459,116 @@ EXECUTE :g_numero:=calculadora(4, 5, '*');
 PRINT g_numero;
 EXECUTE :g_numero:=calculadora(6, 2, '/');
 PRINT g_numero;
+
+
+CREATE OR REPLACE PACKAGE LEER_ALUMNO
+AS
+TYPE DATOS_ESTUDIANTE IS
+RECORD
+(
+NUMERO_ESTUDIANTE ESTUDIANTE.ID_ESTUDIANTE%TYPE,
+NOMBRE_ESTUDIANTE ESTUDIANTE.NOMBRE%TYPE,
+NUMERO_MATERIA ESTUDIANTE.ID_MATERIA%TYPE
+);
+PROCEDURE LEE_ESTUDIANTE(NUM_ALUM ESTUDIANTE.ID_ESTUDIANTE%TYPE);
+END LEER_ALUMNO;
+/
+
+CREATE OR REPLACE PACKAGE BODY LEER_ALUMNO
+AS
+DATOS_ALUMNO DATOS_ESTUDIANTE; 
+PROCEDURE MUESTRA_ESTUDIANTE;  
+PROCEDURE LEE_ESTUDIANTE(NUM_ALUM ESTUDIANTE.ID_ESTUDIANTE%TYPE)
+IS
+BEGIN
+SELECT ID_ESTUDIANTE,NOMBRE,ID_MATERIA
+INTO DATOS_ALUMNO
+FROM ESTUDIANTE
+WHERE ID_ESTUDIANTE=NUM_ALUM;
+MUESTRA_ESTUDIANTE;
+END;
+PROCEDURE MUESTRA_ESTUDIANTE
+IS
+BEGIN
+DBMS_OUTPUT.PUT_LINE(
+DATOS_ALUMNO.NUMERO_ESTUDIANTE|| ' ' ||
+DATOS_ALUMNO.NOMBRE_ESTUDIANTE|| ' ' ||
+DATOS_ALUMNO.NUMERO_MATERIA
+);
+END MUESTRA_ESTUDIANTE;
+END LEER_ALUMNO;
+/
+
+
+
+CREATE TABLE Articulos (
+    CODIGO VARCHAR2(10),
+    DESCRIPCION VARCHAR2(80),
+    PRECIO NUMBER(8,2),
+    COD_ALMACEN NUMBER(5),
+    PRIMARY KEY (CODIGO)
+);
+
+INSERT ALL 
+    into Articulos (CODIGO, DESCRIPCION, PRECIO, COD_ALMACEN) values ('SBP0025HA2', 'Healthy pizza crust made from cauliflower', 5.99, '38947')
+    into Articulos (CODIGO, DESCRIPCION, PRECIO, COD_ALMACEN) values ('1P2Z1A30F4', 'Lightweight and portable picnic table for outdoor use.', 49.99, '92879')
+    into Articulos (CODIGO, DESCRIPCION, PRECIO, COD_ALMACEN) values ('DEK6150ER1', 'Eco-friendly meal prep containers for healthy eating.', 18.99, '49243')
+    into Articulos (CODIGO, DESCRIPCION, PRECIO, COD_ALMACEN) values ('3KSA6J9Z36', 'Compact coffee grinder for fresh ground coffee beans.', 22.99, '76423')
+    into Articulos (CODIGO, DESCRIPCION, PRECIO, COD_ALMACEN) values ('QY8K63WGFB', 'Extra soft electric blanket with adjustable heat settings.', 59.99, '55959')
+    into Articulos (CODIGO, DESCRIPCION, PRECIO, COD_ALMACEN) values ('LSFIL50U37', 'A blend of nuts, seeds, and spices for a healthy snack.', 4.29, '06968')
+    into Articulos (CODIGO, DESCRIPCION, PRECIO, COD_ALMACEN) values ('O1E20F5VC4', 'Convenient feeder that adjusts to your pet''s height.', 39.99, '84708')
+    into Articulos (CODIGO, DESCRIPCION, PRECIO, COD_ALMACEN) values ('8200XLW7HR', 'A frozen meal featuring quinoa and mixed vegetables, ready to heat and eat.', 5.99, '33440')
+    into Articulos (CODIGO, DESCRIPCION, PRECIO, COD_ALMACEN) values ('DX88P0O66I', 'Mesh drying rack for preserving herbs and flowers.', 22.99, '00979')
+    into Articulos (CODIGO, DESCRIPCION, PRECIO, COD_ALMACEN) values ('6W1731WL06', 'Creamy chia pudding made with coconut milk and topped with mango.', 3.49, '77606')
+ SELECT * FROM dual;
+
+-- Desarrolle un procedimiento en el que se use cursores y un paquete y, mediante una lectura secuencial, copie en una segunda tabla, todos los datos cuyo precio sea mayor a o igual a un parametro enviado al procedimiento.
+-- En una tercera tabla copie todos los datos que sean menores a ese parametro.
+-- Una vez que recorra toda la tabla, muestre el mensaje "Fin del proceso" mediente el uso de excepciones.
+
+CREATE OR REPLACE PACKAGE PROCESO_ARTICULOS
+AS
+    PROCEDURE COPIA_ARTICULOS(V_PRECIO NUMBER);
+END PROCESO_ARTICULOS;
+/
+
+CREATE OR REPLACE PACKAGE BODY PROCESO_ARTICULOS
+AS
+    CURSOR C_ARTICULOS IS
+        SELECT * FROM ARTICULOS;
+        V_ARTICULO C_ARTICULOS%ROWTYPE;
+    CURSOR C_ARTICULOS_MAYORES IS
+        SELECT * FROM ARTICULOS WHERE PRECIO >= V_PRECIO;
+        V_ARTICULO_MAYOR C_ARTICULOS_MAYORES%ROWTYPE;
+    CURSOR C_ARTICULOS_MENORES IS
+        SELECT * FROM ARTICULOS WHERE PRECIO < V_PRECIO;
+        V_ARTICULO_MENOR C_ARTICULOS_MENORES%ROWTYPE;
+        V_CONTADOR_MAYORES NUMBER := 0;
+        V_CONTADOR_MENORES NUMBER := 0;
+BEGIN
+    OPEN C_ARTICULOS;
+    LOOP
+        FETCH C_ARTICULOS INTO V_ARTICULO;
+        EXIT WHEN C_ARTICULOS%NOTFOUND;
+        
+        IF V_ARTICULO.PRECIO >= V_PRECIO THEN
+            V_CONTADOR_MAYORES := V_CONTADOR_MAYORES + 1;
+            INSERT INTO ARTICULOS_MAYORES VALUES (V_ARTICULO.CODIGO, V_ARTICULO.DESCRIPCION, V_ARTICULO.PRECIO, V_ARTICULO.COD_ALMACEN);
+        ELSE
+            V_CONTADOR_MENORES := V_CONTADOR_MENORES + 1;
+            INSERT INTO ARTICULOS_MENORES VALUES (V_ARTICULO.CODIGO, V_ARTICULO.DESCRIPCION, V_ARTICULO.PRECIO, V_ARTICULO.COD_ALMACEN);
+        END IF;
+    END LOOP;
+    CLOSE C_ARTICULOS;
+    DBMS_OUTPUT.PUT_LINE('Articulos mayores a ' || V_PRECIO || ': ' || V_CONTADOR_MAYORES);
+    DBMS_OUTPUT.PUT_LINE('Articulos menores a ' || V_PRECIO || ': ' || V_CONTADOR_MENORES);
+    DBMS_OUTPUT.PUT_LINE('Fin del proceso');
+EXCEPTION
+    WHEN NO_DATA_FOUND THEN
+        DBMS_OUTPUT.PUT_LINE('No se encontraron datos');
+    WHEN OTHERS THEN
+        DBMS_OUTPUT.PUT_LINE('Error no previsto');
+END PROCESO_ARTICULOS;
+/
+
+EXECUTE PROCESO_ARTICULOS.COPIA_ARTICULOS(10);
