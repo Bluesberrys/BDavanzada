@@ -1,8 +1,11 @@
+-- <--	TABLESPACE Y USUARIO	-->
 CREATE TABLESPACE GALGO DATAFILE 'D:\Max\Proyectos\BDavanzada/GALGO.DBF' SIZE 10M; 
 
 CREATE USER BLUE IDENTIFIED BY 090322 DEFAULT TABLESPACE GALGO;
 
 GRANT CONNECT, CREATE SESSION, CREATE TABLE, CREATE PROCEDURE, UNLIMITED TABLESPACE TO BLUE;
+
+-- <--	CREACION DE TABLAS	-->
 
 CREATE TABLE cliente(
 	id_cliente varchar(10) PRIMARY KEY NOT NULL,
@@ -117,147 +120,153 @@ CREATE TABLE boleto(
 	FOREIGN KEY(folio_recorrido) REFERENCES recorrido(folio_recorrido)
 );
 
--- <--	INSERT	-->
-INSERT INTO cliente VALUES
-('CL001','Juan','Hernández','López','Av. Reforma 123, CDMX'),
-('CL002','María','García','Pérez','Calle Morelos 45, Puebla'),
-('CL003','Luis','Ramírez','Cruz','Av. Juárez 67, Guadalajara'),
-('CL004','Ana','Flores','Martínez','Calle Hidalgo 22, Monterrey'),
-('CL005','Carlos','Sánchez','Moreno','Blvd. Díaz Ordaz 130, León'),
-('CL006','Fernanda','Ortiz','Reyes','Calle Independencia 11, Toluca'),
-('CL007','José','Vargas','Ruiz','Calle Juárez 501, Querétaro'),
-('CL008','Valeria','Torres','Rojas','Av. Insurgentes 999, CDMX'),
-('CL009','Miguel','Navarro','Soto','Calle Allende 34, Mérida'),
-('CL010','Lucía','Cortés','Aguilar','Av. Universidad 101, San Luis Potosí');
+SELECT * FROM CAT;
 
-INSERT INTO centrales VALUES
-('CEN01','Central Norte','CDMX','15','5551234567'),
-('CEN02','Central Sur','CDMX','12','5557654321'),
-('CEN03','Central de Guadalajara','Guadalajara','10','3335678912'),
-('CEN04','Central de Monterrey','Monterrey','14','8187654321'),
-('CEN05','Central de Puebla','Puebla','11','2223344556'),
-('CEN06','Central de León','León','8','4771122334'),
-('CEN07','Central de Toluca','Toluca','7','7229988776'),
-('CEN08','Central de Querétaro','Querétaro','9','4426655443'),
-('CEN09','Central de Mérida','Mérida','6','9993344556'),
-('CEN10','Central de SLP','San Luis Potosí','8','4445566778');
+-- <--	INSERTAR DATOS	-->
 
-INSERT INTO camion VALUES
-('NCI000000001','ABC1234','001','Volvo','2020','45','CEN01'),
-('NCI000000002','BCD2345','002','Mercedes','2019','40','CEN02'),
-('NCI000000003','CDE3456','003','Scania','2021','42','CEN03'),
-('NCI000000004','DEF4567','004','MAN','2022','44','CEN04'),
-('NCI000000005','EFG5678','005','Volvo','2020','38','CEN05'),
-('NCI000000006','FGH6789','006','Mercedes','2018','36','CEN06'),
-('NCI000000007','GHI7890','007','Scania','2021','50','CEN07'),
-('NCI000000008','HIJ8901','008','MAN','2022','48','CEN08'),
-('NCI000000009','IJK9012','009','Volvo','2019','40','CEN09'),
-('NCI000000010','JKL0123','010','Mercedes','2020','42','CEN10');
+INSERT ALL
+  INTO cliente VALUES('CL001','Carlos','Ramírez','Lopez','Av. Juárez 123, CDMX')
+  INTO cliente VALUES('CL002','María','Hernández','Gómez','Calle Reforma 456, Puebla')
+  INTO cliente VALUES('CL003','Luis','Martínez','Sánchez','Av. Morelos 789, Guadalajara')
+  INTO cliente VALUES('CL004','Ana','García','Torres','Calle Hidalgo 321, Monterrey')
+  INTO cliente VALUES('CL005','Jorge','Pérez','Ramírez','Av. Insurgentes 654, Toluca')
+  INTO cliente VALUES('CL006','Sofía','Castro','Flores','Calle Juárez 222, Querétaro')
+  INTO cliente VALUES('CL007','Ricardo','Mendoza','Luna','Av. Reforma 888, Mérida')
+  INTO cliente VALUES('CL008','Fernanda','Ruiz','Morales','Calle Hidalgo 999, León')
+  INTO cliente VALUES('CL009','Miguel','Vega','Salazar','Av. Morelos 555, Cancún')
+  INTO cliente VALUES('CL010','Laura','Navarro','Cruz','Calle Central 777, Oaxaca')
+SELECT * FROM dual;
 
-INSERT INTO imprevisto VALUES
-('001','Ponchadura de llanta','Una de las llantas delanteras sufrió una ponchadura.','B'),
-('002','Falla mecánica','Problema en el motor detectado durante el recorrido.','A'),
-('003','Retraso por tráfico','Tráfico pesado en la autopista principal.','C'),
-('004','Problema eléctrico','Falla en el sistema de luces interiores.','B'),
-('005','Puerta atascada','Puerta trasera no cierra correctamente.','C'),
-('006','Avería de aire acondicionado','Sistema de aire no enfría.','B'),
-('007','Accidente leve','Colisión menor sin heridos.','A'),
-('008','Retraso por clima','Lluvias intensas causaron demora.','C'),
-('009','Vidrio roto','Ventana lateral rota por impacto.','B'),
-('010','Frenos defectuosos','Sistema de frenos requiere revisión urgente.','A');
+INSERT ALL
+  INTO centrales VALUES('CEN01','Central Norte','CDMX',50,'5551234567')
+  INTO centrales VALUES('CEN02','Central Sur','CDMX',35,'5559876543')
+  INTO centrales VALUES('CEN03','Central de Puebla','Puebla',40,'2223456789')
+  INTO centrales VALUES('CEN04','Central Guadalajara','Guadalajara',45,'3335678901')
+  INTO centrales VALUES('CEN05','Central Monterrey','Monterrey',42,'8184567890')
+  INTO centrales VALUES('CEN06','Central Toluca','Toluca',30,'7223456789')
+  INTO centrales VALUES('CEN07','Central Mérida','Mérida',28,'9994567890')
+  INTO centrales VALUES('CEN08','Central Querétaro','Querétaro',33,'4422345678')
+  INTO centrales VALUES('CEN09','Central León','León',29,'4775678901')
+  INTO centrales VALUES('CEN10','Central Oaxaca','Oaxaca',31,'9513456789')
+SELECT * FROM dual;
 
-INSERT INTO problemas VALUES
-('P0001','001','NCI000000001','2025-09-12','CDMX'),
-('P0002','002','NCI000000004','2025-09-15','Monterrey'),
-('P0003','003','NCI000000003','2025-09-10','Guadalajara'),
-('P0004','004','NCI000000006','2025-09-11','León'),
-('P0005','005','NCI000000005','2025-09-18','Puebla'),
-('P0006','006','NCI000000007','2025-09-13','Toluca'),
-('P0007','007','NCI000000009','2025-09-09','Mérida'),
-('P0008','008','NCI000000008','2025-09-14','Querétaro'),
-('P0009','009','NCI000000010','2025-09-19','San Luis Potosí'),
-('P0010','010','NCI000000002','2025-09-20','CDMX');
+INSERT ALL
+  INTO camion VALUES('NCI000000001','ABC1234','001','Volvo','2020','45','CEN01')
+  INTO camion VALUES('NCI000000002','BCD2345','002','Mercedes','2019','40','CEN02')
+  INTO camion VALUES('NCI000000003','CDE3456','003','Scania','2021','42','CEN03')
+  INTO camion VALUES('NCI000000004','DEF4567','004','Volvo','2018','38','CEN04')
+  INTO camion VALUES('NCI000000005','EFG5678','005','MAN','2022','44','CEN05')
+  INTO camion VALUES('NCI000000006','FGH6789','006','Mercedes','2020','39','CEN06')
+  INTO camion VALUES('NCI000000007','GHI7890','007','Scania','2021','41','CEN07')
+  INTO camion VALUES('NCI000000008','HIJ8901','008','Volvo','2019','43','CEN08')
+  INTO camion VALUES('NCI000000009','IJK9012','009','MAN','2022','40','CEN09')
+  INTO camion VALUES('NCI000000010','JKL0123','010','Mercedes','2020','42','CEN10')
+SELECT * FROM dual;
 
-INSERT INTO chofer VALUES
-('HJLJ800101MX1','Jorge','López','Jiménez','12345678901',45,'Av. Central 23, CDMX','jorge.lopez@correo.com','5512345678',10),
-('MGCP820202MX2','Marcos','García','Pineda','23456789012',43,'Calle Sol 77, Puebla','marcos.garcia@correo.com','5523456789',8),
-('LRRC900303MX3','Luis','Ramírez','Cano','34567890123',38,'Av. Hidalgo 12, Guadalajara','luis.ramirez@correo.com','5534567890',6),
-('AFSM850404MX4','Alberto','Flores','Sánchez','45678901234',40,'Calle Sur 45, Monterrey','alberto.flores@correo.com','5545678901',7),
-('CMMR870505MX5','Carlos','Moreno','Rojas','56789012345',41,'Blvd. Hidalgo 99, León','carlos.moreno@correo.com','5556789012',9),
-('FOTR910606MX6','Fernando','Torres','Ríos','67890123456',34,'Calle Palma 22, Toluca','fernando.torres@correo.com','5567890123',5),
-('JVRZ920707MX7','Javier','Vázquez','Ruiz','78901234567',33,'Av. Insurgentes 350, Querétaro','javier.vazquez@correo.com','5578901234',4),
-('MNRL930808MX8','Manuel','Navarro','Lara','89012345678',32,'Calle Norte 8, Mérida','manuel.navarro@correo.com','5589012345',4),
-('LSAR950909MX9','Laura','Sánchez','Ramos','90123456789',30,'Av. México 45, Puebla','laura.sanchez@correo.com','5590123456',3),
-('LAGR960101MX0','Lucía','Aguilar','Rojas','01234567890',29,'Calle Juárez 55, CDMX','lucia.aguilar@correo.com','5501234567',2);
+INSERT ALL
+  INTO imprevisto VALUES('001','Falla mecánica','El motor presentó una falla durante el recorrido','A')
+  INTO imprevisto VALUES('002','Pinchadura','Una llanta se ponchó en carretera','B')
+  INTO imprevisto VALUES('003','Retraso','El camión salió con 30 minutos de retraso','C')
+  INTO imprevisto VALUES('004','Clima adverso','Lluvia intensa en la autopista','B')
+  INTO imprevisto VALUES('005','Accidente menor','Choque leve sin lesionados','A')
+  INTO imprevisto VALUES('006','Problema eléctrico','Falla en sistema de luces','B')
+  INTO imprevisto VALUES('007','Cambio de ruta','Ruta modificada por bloqueo','C')
+  INTO imprevisto VALUES('008','Pasajero enfermo','Se atendió emergencia médica','B')
+  INTO imprevisto VALUES('009','Frenos defectuosos','Se detectó problema en el sistema de frenos','A')
+  INTO imprevisto VALUES('010','Demora en carga','Retraso por exceso de equipaje','C')
+SELECT * FROM dual;
 
-INSERT INTO conduce VALUES
-('CON01','HJLJ800101MX1','NCI000000001'),
-('CON02','MGCP820202MX2','NCI000000002'),
-('CON03','LRRC900303MX3','NCI000000003'),
-('CON04','AFSM850404MX4','NCI000000004'),
-('CON05','CMMR870505MX5','NCI000000005'),
-('CON06','FOTR910606MX6','NCI000000006'),
-('CON07','JVRZ920707MX7','NCI000000007'),
-('CON08','MNRL930808MX8','NCI000000008'),
-('CON09','LSAR950909MX9','NCI000000009'),
-('CON10','LAGR960101MX0','NCI000000010');
+INSERT ALL
+  INTO chofer VALUES('CHOFR001AAA','Juan','Pérez','López','12345678901',35,'Av. Hidalgo 123, CDMX','juan.perez@mail.com','5551112222',5)
+  INTO chofer VALUES('CHOFR002BBB','María','Gómez','Hernández','12345678902',29,'Calle Reforma 456, Puebla','maria.gomez@mail.com','2223334444',3)
+  INTO chofer VALUES('CHOFR003CCC','Luis','Ramírez','Torres','12345678903',40,'Av. Juárez 789, GDL','luis.ramirez@mail.com','3335556666',8)
+  INTO chofer VALUES('CHOFR004DDD','Ana','Sánchez','Ruiz','12345678904',32,'Calle Morelos 111, Monterrey','ana.sanchez@mail.com','8187778888',6)
+  INTO chofer VALUES('CHOFR005EEE','Pedro','Flores','Castillo','12345678905',45,'Av. Universidad 222, Toluca','pedro.flores@mail.com','7229990000',10)
+  INTO chofer VALUES('CHOFR006FFF','Lucía','Mendoza','Ríos','12345678906',28,'Calle Central 333, Querétaro','lucia.mendoza@mail.com','4421234567',2)
+  INTO chofer VALUES('CHOFR007GGG','Carlos','Morales','Cruz','12345678907',38,'Av. Reforma 444, Mérida','carlos.morales@mail.com','9993456789',7)
+  INTO chofer VALUES('CHOFR008HHH','Fernanda','Vega','Pérez','12345678908',31,'Calle Hidalgo 555, León','fernanda.vega@mail.com','4775678901',4)
+  INTO chofer VALUES('CHOFR009III','Miguel','Ruiz','Navarro','12345678909',37,'Av. Morelos 666, Cancún','miguel.ruiz@mail.com','9983456789',6)
+  INTO chofer VALUES('CHOFR010JJJ','Laura','Cruz','Salazar','12345678910',33,'Calle Insurgentes 777, Oaxaca','laura.cruz@mail.com','9513456789',5)
+SELECT * FROM dual;
 
-INSERT INTO ruta VALUES
-('R001','CEN01','CEN03'),
-('R002','CEN03','CEN04'),
-('R003','CEN05','CEN01'),
-('R004','CEN02','CEN06'),
-('R005','CEN07','CEN08'),
-('R006','CEN08','CEN09'),
-('R007','CEN04','CEN10'),
-('R008','CEN10','CEN05'),
-('R009','CEN09','CEN02'),
-('R010','CEN06','CEN07');
+INSERT ALL
+  INTO conduce VALUES('CON01','CHOFR001AAA','NCI000000001')
+  INTO conduce VALUES('CON02','CHOFR002BBB','NCI000000002')
+  INTO conduce VALUES('CON03','CHOFR003CCC','NCI000000003')
+  INTO conduce VALUES('CON04','CHOFR004DDD','NCI000000004')
+  INTO conduce VALUES('CON05','CHOFR005EEE','NCI000000005')
+  INTO conduce VALUES('CON06','CHOFR006FFF','NCI000000006')
+  INTO conduce VALUES('CON07','CHOFR007GGG','NCI000000007')
+  INTO conduce VALUES('CON08','CHOFR008HHH','NCI000000008')
+  INTO conduce VALUES('CON09','CHOFR009III','NCI000000009')
+  INTO conduce VALUES('CON10','CHOFR010JJJ','NCI000000010')
+SELECT * FROM dual;
 
-INSERT INTO tramo VALUES
-('T0001','R001','CEN01','CEN02'),
-('T0002','R002','CEN03','CEN04'),
-('T0003','R003','CEN05','CEN01'),
-('T0004','R004','CEN02','CEN06'),
-('T0005','R005','CEN07','CEN08'),
-('T0006','R006','CEN08','CEN09'),
-('T0007','R007','CEN04','CEN10'),
-('T0008','R008','CEN10','CEN05'),
-('T0009','R009','CEN09','CEN02'),
-('T0010','R010','CEN06','CEN07');
+INSERT ALL
+  INTO ruta VALUES('R001','CEN01','CEN02')
+  INTO ruta VALUES('R002','CEN02','CEN03')
+  INTO ruta VALUES('R003','CEN03','CEN04')
+  INTO ruta VALUES('R004','CEN04','CEN05')
+  INTO ruta VALUES('R005','CEN05','CEN06')
+  INTO ruta VALUES('R006','CEN06','CEN07')
+  INTO ruta VALUES('R007','CEN07','CEN08')
+  INTO ruta VALUES('R008','CEN08','CEN09')
+  INTO ruta VALUES('R009','CEN09','CEN10')
+  INTO ruta VALUES('R010','CEN10','CEN01')
+SELECT * FROM dual;
 
-INSERT INTO reservacion VALUES
-('RS001','R001','CL001','2025-09-20'),
-('RS002','R002','CL002','2025-09-21'),
-('RS003','R003','CL003','2025-09-22'),
-('RS004','R004','CL004','2025-09-23'),
-('RS005','R005','CL005','2025-09-24'),
-('RS006','R006','CL006','2025-09-25'),
-('RS007','R007','CL007','2025-09-26'),
-('RS008','R008','CL008','2025-09-27'),
-('RS009','R009','CL009','2025-09-28'),
-('RS010','R010','CL010','2025-09-29');
+INSERT ALL
+  INTO tramo VALUES('T0001','R001','CEN01','CEN02')
+  INTO tramo VALUES('T0002','R002','CEN02','CEN03')
+  INTO tramo VALUES('T0003','R003','CEN03','CEN04')
+  INTO tramo VALUES('T0004','R004','CEN04','CEN05')
+  INTO tramo VALUES('T0005','R005','CEN05','CEN06')
+  INTO tramo VALUES('T0006','R006','CEN06','CEN07')
+  INTO tramo VALUES('T0007','R007','CEN07','CEN08')
+  INTO tramo VALUES('T0008','R008','CEN08','CEN09')
+  INTO tramo VALUES('T0009','R009','CEN09','CEN10')
+  INTO tramo VALUES('T0010','R010','CEN10','CEN01')
+SELECT * FROM dual;
 
-INSERT INTO recorrido VALUES
-('REC001','CON01','R001','T0001','07:30',20,'07:45'),
-('REC002','CON02','R002','T0002','08:00',15,'08:10'),
-('REC003','CON03','R003','T0003','09:00',18,'09:20'),
-('REC004','CON04','R004','T0004','10:00',25,'10:15'),
-('REC005','CON05','R005','T0005','11:30',22,'11:45'),
-('REC006','CON06','R006','T0006','12:00',17,'12:20'),
-('REC007','CON07','R007','T0007','13:15',19,'13:35'),
-('REC008','CON08','R008','T0008','14:00',16,'14:25'),
-('REC009','CON09','R009','T0009','15:00',14,'15:10'),
-('REC010','CON10','R010','T0010','16:00',21,'16:15');
+INSERT ALL
+  INTO reservacion VALUES('RS001','R001','CL001',TO_DATE('2025-09-20','YYYY-MM-DD'))
+  INTO reservacion VALUES('RS002','R002','CL002',TO_DATE('2025-09-21','YYYY-MM-DD'))
+  INTO reservacion VALUES('RS003','R003','CL003',TO_DATE('2025-09-22','YYYY-MM-DD'))
+  INTO reservacion VALUES('RS004','R004','CL004',TO_DATE('2025-09-23','YYYY-MM-DD'))
+  INTO reservacion VALUES('RS005','R005','CL005',TO_DATE('2025-09-24','YYYY-MM-DD'))
+  INTO reservacion VALUES('RS006','R006','CL006',TO_DATE('2025-09-25','YYYY-MM-DD'))
+  INTO reservacion VALUES('RS007','R007','CL007',TO_DATE('2025-09-26','YYYY-MM-DD'))
+  INTO reservacion VALUES('RS008','R008','CL008',TO_DATE('2025-09-27','YYYY-MM-DD'))
+  INTO reservacion VALUES('RS009','R009','CL009',TO_DATE('2025-09-28','YYYY-MM-DD'))
+  INTO reservacion VALUES('RS010','R010','CL010',TO_DATE('2025-09-29','YYYY-MM-DD'))
+SELECT * FROM dual;
 
-INSERT INTO boleto VALUES
-('01','RS001','REC001',250.00,'S'),
-('02','RS001','REC001',250.00,'S'),
-('03','RS002','REC002',300.00,'S'),
-('04','RS003','REC003',280.00,'N'),
-('05','RS004','REC004',320.00,'S'),
-('06','RS005','REC005',350.00,'S'),
-('07','RS006','REC006',270.00,'N'),
-('08','RS007','REC007',310.00,'S'),
-('09','RS008','REC008',330.00,'S'),
-('10','RS009','REC009',290.00,'S');
+INSERT ALL
+  INTO recorrido VALUES('REC001','CON01','R001','T0001','08:00',40,'12:00')
+  INTO recorrido VALUES('REC002','CON02','R002','T0002','09:00',38,'13:00')
+  INTO recorrido VALUES('REC003','CON03','R003','T0003','10:00',42,'14:00')
+  INTO recorrido VALUES('REC004','CON04','R004','T0004','11:00',39,'15:00')
+  INTO recorrido VALUES('REC005','CON05','R005','T0005','07:30',37,'11:30')
+  INTO recorrido VALUES('REC006','CON06','R006','T0006','12:00',35,'16:00')
+  INTO recorrido VALUES('REC007','CON07','R007','T0007','06:00',45,'10:00')
+  INTO recorrido VALUES('REC008','CON08','R008','T0008','13:00',41,'17:00')
+  INTO recorrido VALUES('REC009','CON09','R009','T0009','14:00',38,'18:00')
+  INTO recorrido VALUES('REC010','CON10','R010','T0010','15:00',40,'19:00')
+SELECT * FROM dual;
+
+INSERT ALL
+  INTO boleto VALUES('01','RS001','REC001',550.00,'S')
+  INTO boleto VALUES('02','RS002','REC002',650.00,'S')
+  INTO boleto VALUES('03','RS003','REC003',700.00,'S')
+  INTO boleto VALUES('04','RS004','REC004',620.00,'N')
+  INTO boleto VALUES('05','RS005','REC005',580.00,'S')
+  INTO boleto VALUES('06','RS006','REC006',610.00,'S')
+  INTO boleto VALUES('07','RS007','REC007',730.00,'S')
+  INTO boleto VALUES('08','RS008','REC008',690.00,'N')
+  INTO boleto VALUES('09','RS009','REC009',720.00,'S')
+  INTO boleto VALUES('10','RS010','REC010',640.00,'S')
+SELECT * FROM dual;
+
+-- <--	CONSULTAS	-->
+
+SELECT * FROM BOLETO;
