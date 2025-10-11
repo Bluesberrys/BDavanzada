@@ -633,3 +633,183 @@ UPDATE ESTUDIANTE SET APELLIDO = 'Sam' WHERE ID_ESTUDIANTE = '8966';
 
 CONNECT USER1/password1
 UPDATE ESTUDIANTE SET NOMBRE = 'Omar', APELLIDO = 'Rios' WHERE ID_ESTUDIANTE = '2907';
+
+
+
+CREATE TABLE CLIENTS (
+    ID_CLIENTE CHAR(1) PRIMARY KEY,
+    NOMBRE VARCHAR2(10),
+    CREDITO NUMBER(5,2)
+);
+
+INSERT INTO CLIENTS (ID_CLIENTE, NOMBRE, CREDITO) VALUES
+('A', 'Juan', 1000),
+('B', 'Maria', 2000),
+('C', 'Pedro', 3000),
+('D', 'Ana', 4000),
+('E', 'Luis', 5000);
+
+-- DECLARE 
+--     CURSOR UPDATE_CURSOR IS
+--         SELECT CREDITO,ID_CLIENTE 
+--         FROM CLIENTS
+--         WHERE CREDITO > 50
+--         FOR UPDATE OF CREDITO;
+--         BEGIN
+--             FOR X IN UPDATE_CURSOR LOOP
+--                 update CLIENTS
+--                 set CREDITO = CREDITO * 1.10
+--                 WHERE CURRENT OF UPDATE_CURSOR;
+--                 dbms.
+--             END LOOP;
+
+
+
+
+
+
+-- ----Examen--------
+
+SET SERVEROUTPUT ON;
+
+-- Creación de la tabla "Articulos"
+CREATE TABLE Articulos (
+    Codigo NUMBER PRIMARY KEY,
+    Descripcion VARCHAR2(100),
+    Precio NUMBER,
+    Cod_almacen NUMBER
+);
+
+INSERT ALL 
+    INTO Articulos (Codigo, Descripcion, Precio, Cod_almacen) VALUES (1, 'Pinza', 79, 1)
+    INTO Articulos (Codigo, Descripcion, Precio, Cod_almacen) VALUES (2, 'Martillo', 122, 1)
+    INTO Articulos (Codigo, Descripcion, Precio, Cod_almacen) VALUES (3, 'Desarmador', 47, 1)
+    INTO Articulos (Codigo, Descripcion, Precio, Cod_almacen) VALUES (4, 'Podadora', 7000, 2)
+    INTO Articulos (Codigo, Descripcion, Precio, Cod_almacen) VALUES (5, 'Buje', 22, 3)
+    INTO Articulos (Codigo, Descripcion, Precio, Cod_almacen) VALUES (6, 'Espatula', 16, 2)
+    INTO Articulos (Codigo, Descripcion, Precio, Cod_almacen) VALUES (7, 'Brocha', 30, 1)
+SELECT * FROM dual;
+
+-- Creación de la tabla "Almacenes"
+CREATE TABLE Almacenes (
+    Codigo NUMBER PRIMARY KEY,
+    Descripcion VARCHAR2(100)
+);
+
+INSERT ALL 
+    INTO Almacenes (Codigo, Descripcion) VALUES (1, 'Producto terminado')
+    INTO Almacenes (Codigo, Descripcion) VALUES (2, 'Produccion en proceso')
+    INTO Almacenes (Codigo, Descripcion) VALUES (3, 'Materia prima')
+SELECT * FROM dual;
+
+-- Creación de las tablas "mayores" y "menores"
+CREATE TABLE mayores (
+    Codigo NUMBER,
+    Descripcion VARCHAR2(100),
+    Precio NUMBER,
+    Cod_almacen NUMBER
+);
+
+CREATE TABLE menores (
+    Codigo NUMBER,
+    Descripcion VARCHAR2(100),
+    Precio NUMBER,
+    Cod_almacen NUMBER
+);
+
+SELECT * FROM Articulos;
+SELECT * FROM Almacenes;
+SELECT * FROM mayores;
+SELECT * FROM menores;
+
+-- Creación del procedimiento "Copia"
+CREATE OR REPLACE PROCEDURE Copia(p_precio_threshold IN NUMBER) AS
+BEGIN
+    -- Copiar a la tabla "mayores" si no existe ya
+    INSERT INTO mayores (Codigo, Descripcion, Precio, Cod_almacen)
+    SELECT Codigo, Descripcion, Precio, Cod_almacen
+    FROM Articulos
+    WHERE Precio >= p_precio_threshold
+    AND NOT EXISTS (
+        SELECT 1 FROM mayores m WHERE m.Codigo = Articulos.Codigo
+    );
+
+    -- Copiar a la tabla "menores" si no existe ya
+    INSERT INTO menores (Codigo, Descripcion, Precio, Cod_almacen)
+    SELECT Codigo, Descripcion, Precio, Cod_almacen
+    FROM Articulos
+    WHERE Precio < p_precio_threshold
+    AND NOT EXISTS (
+        SELECT 1 FROM menores m WHERE m.Codigo = Articulos.Codigo
+    );
+END;
+/
+
+-- Creación del trigger para "mayores"
+CREATE OR REPLACE TRIGGER trg_mayores
+AFTER INSERT ON mayores
+FOR EACH ROW
+BEGIN
+    DBMS_OUTPUT.PUT_LINE('Registro adicionado en tabla: Mayores');
+END;
+/
+
+-- Creación del trigger para "menores"
+CREATE OR REPLACE TRIGGER trg_menores
+AFTER INSERT ON menores
+FOR EACH ROW
+BEGIN
+    DBMS_OUTPUT.PUT_LINE('Registro adicionado en tabla: Menores');
+END;
+/
+
+-- Creación de la vista que muestra los datos de "Articulos" con el nombre del almacén
+CREATE OR REPLACE VIEW vista_articulos AS
+SELECT a.Codigo, a.Descripcion, a.Precio, al.Descripcion AS Almacen
+FROM Articulos a
+JOIN Almacenes al ON a.Cod_almacen = al.Codigo;
+
+-- Consulta para verificar la creación del procedimiento
+SELECT object_type, object_name, created, timestamp, status 
+FROM user_objects 
+WHERE object_name = 'COPIA';
+
+-- Ejecución del procedimiento "Copia"
+BEGIN
+    Copia(100);
+END;
+/
+
+SELECT * FROM mayores;
+SELECT * FROM menores;
+
+INSERT INTO mayores (Codigo, Descripcion, Precio, Cod_almacen) VALUES (8, 'Nuevo Articulo Mayor', 150, 1);
+INSERT INTO menores (Codigo, Descripcion, Precio, Cod_almacen) VALUES (9, 'Nuevo Articulo Menor', 50, 2);
+
+SELECT * FROM vista_articulos;
+
+BEGIN
+    Copia(50);  -- Para copiar artículos con precio >= 50
+END;
+/
+BEGIN
+    Copia(200);  -- Para copiar artículos con precio >= 200
+END;
+/
+SELECT * FROM mayores;
+SELECT * FROM menores;
+
+
+
+
+-- Limpieza de tablas y objetos creados
+DROP TABLE Articulos;
+DROP TABLE Almacenes;
+DROP TABLE mayores;
+DROP TABLE menores;
+DROP VIEW vista_articulos;
+DROP PROCEDURE Copia;
+DROP TRIGGER trg_mayores;
+DROP TRIGGER trg_menores;
+PURGE RECYCLEBIN;
+COMMIT;
