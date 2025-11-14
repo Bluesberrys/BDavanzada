@@ -3,7 +3,9 @@ CREATE TABLESPACE GALGO DATAFILE 'D:\Max\Proyectos\BDavanzada/GALGO.DBF' SIZE 10
 
 CREATE USER BLUE IDENTIFIED BY 090322 DEFAULT TABLESPACE GALGO;
 
-GRANT CONNECT, CREATE SESSION, CREATE TABLE, CREATE PROCEDURE, UNLIMITED TABLESPACE TO BLUE;
+GRANT CONNECT, CREATE SESSION, CREATE TABLE, CREATE PROCEDURE, CREATE VIEW, UNLIMITED TABLESPACE TO BLUE;
+
+COMMIT;
 
 -- <--	CREACION DE TABLAS	-->
 
@@ -178,7 +180,7 @@ SELECT * FROM dual;
 
 INSERT ALL
   INTO chofer VALUES('CHOFR001AAA','Juan','Pérez','López','12345678901',35,'Av. Hidalgo 123, CDMX','juan.perez@mail.com','5551112222',5)
-  INTO chofer VALUES('CHOFR002BBB','María','Gómez','Hernández','12345678902',29,'Calle Reforma 456, Puebla','maria.gomez@mail.com','2223334444',3)
+  INTO chofer VALUES('','María','Gómez','Hernández','12345678902',29,'Calle Reforma 456, Puebla','maria.gomez@mail.com','2223334444',3)
   INTO chofer VALUES('CHOFR003CCC','Luis','Ramírez','Torres','12345678903',40,'Av. Juárez 789, GDL','luis.ramirez@mail.com','3335556666',8)
   INTO chofer VALUES('CHOFR004DDD','Ana','Sánchez','Ruiz','12345678904',32,'Calle Morelos 111, Monterrey','ana.sanchez@mail.com','8187778888',6)
   INTO chofer VALUES('CHOFR005EEE','Pedro','Flores','Castillo','12345678905',45,'Av. Universidad 222, Toluca','pedro.flores@mail.com','7229990000',10)
@@ -269,4 +271,127 @@ SELECT * FROM dual;
 
 -- <--	CONSULTAS	-->
 
-SELECT * FROM BOLETO;
+SELECT * FROM cliente;
+
+/* 1. ¿Cuántos tramos tiene cada ruta?*/
+SELECT ruta, COUNT(*) AS cantidad_tramos
+FROM tramo
+GROUP BY ruta;
+
+
+/* 2. ¿Cuántas personas bajan en el tramo 2 de la ruta 1?*/
+
+/* Muestra los detalles sin contar*/
+SELECT boleto.num_asiento, reservacion.cliente, recorrido.ruta, recorrido.tramo
+FROM boleto
+INNER JOIN reservacion ON boleto.id_reserva = folio_reserva
+INNER JOIN recorrido ON boleto.folio_recorrido = recorrido.folio_recorrido
+WHERE recorrido.tramo = 'T002';
+
+/* Cuenta los boletos al tramo 2 sin detalles*/
+SELECT COUNT(*) AS Pasajeros_Tramo2
+FROM boleto
+INNER JOIN reservacion ON boleto.id_reserva = folio_reserva
+INNER JOIN recorrido ON boleto.folio_recorrido = recorrido.folio_recorrido
+WHERE recorrido.tramo = 'T002' ;
+
+
+/*3. Listado que contenga:
+   No. de ruta, Nombre de ruta, Nombre de tramo */
+
+   SELECT re.ruta, r_origen.nombre_central AS ruta_origen, r_destino.nombre_central AS ruta_destino, 
+          t_origen.nombre_central AS tramo_origen, t_destino.nombre_central AS tramo_destino
+    FROM recorrido re
+    INNER JOIN ruta r ON re.ruta = r.id_ruta
+    INNER JOIN centrales r_origen ON r.origen= r_origen.id_central
+    INNER JOIN centrales r_destino ON r.destino = r_destino.id_central
+    INNER JOIN tramo t ON re.tramo = t.id_tramo
+    INNER JOIN centrales t_origen ON t.tramo_origen = t_origen.id_central
+    INNER JOIN centrales t_destino ON t.tramo_destino = t_destino.id_central;
+
+
+    COLUMN ruta FORMAT A20
+    COLUMN ruta_origen FORMAT A25
+    COLUMN ruta_destino FORMAT A25
+    COLUMN tramo_origen FORMAT A25
+    COLUMN tramo_Destino FORMAT A25
+    COLUMN salida FORMAT A10
+    COLUMN llegada FORMAT A10
+
+    /* 4. ¿Qué asientos disponibles tiene la ruta número 3 al momento de salir de la terminal y nombre del conductor?   */
+
+    SELECT re.ruta, re.asientos_disponibles, c.nombre_chofer, c.ap_paterno_chofer
+    FROM boleto b 
+    INNER JOIN recorrido re ON b.folio_recorrido = re.folio_recorrido
+    INNER JOIN conduce con ON re.conduce = con.id_conduce
+    INNER JOIN chofer c ON con.chofer = c.rfc
+    WHERE re.ruta = 'RU003';
+
+    /* 5. ¿Qué autobuses y que rutas salen de la terminal entre las 11:00 y 15:00 horas? */
+
+    SELECT folio_recorrido, conduce, ruta, tramo, TO_CHAR(horario_salida, 'HH24:MI') FROM recorrido;
+    
+    SELECT re. folio_recorrido, re.ruta, c.nombre_central, con.camion, TO_CHAR(re.horario_salida, 'HH24:MI') AS Horario
+    FROM recorrido re
+    INNER JOIN conduce con ON re.conduce = con.id_conduce
+    INNER JOIN ruta r ON re.ruta = r.id_ruta
+    INNER JOIN centrales c ON r.origen = c.id_central 
+    WHERE TO_CHAR(re.horario_salida, 'HH24:MI') 
+      BETWEEN '11:00' AND '15:00';
+
+
+/*  6. Listado que contenga:
+   No. de asiento, pasajero y dirección, de la ruta No. 2    */
+
+   SELECT b.num_asiento, c.nombre_cliente, c.ap_paterno_cliente, c.domicilio, res.ruta
+   FROM boleto b
+   INNER JOIN reservacion res ON b.id_reserva = res.folio_reserva
+   INNER JOIN cliente c ON res.cliente = c.id_cliente
+   WHERE res.ruta = 'RU002';
+
+/*  7. Listado que contenga:
+   Nombre de ruta, Hora de salida, hora de llegada, Nombre de tramo, nombre del chofer */
+
+ SELECT re.ruta, r_origen.nombre_central AS ruta_origen, r_destino.nombre_central AS ruta_destino, 
+          t_origen.nombre_central AS tramo_origen, t_destino.nombre_central AS tramo_destino,
+         TO_CHAR(re.horario_salida, 'HH24:MI') AS salida, TO_CHAR(re.hora_llegada, 'HH24:MI') AS llegada,
+         ch.nombre_chofer ||' '|| ch.ap_paterno_chofer AS chofer
+    FROM recorrido re
+    INNER JOIN ruta r ON re.ruta = r.id_ruta
+    INNER JOIN centrales r_origen ON r.origen= r_origen.id_central
+    INNER JOIN centrales r_destino ON r.destino = r_destino.id_central
+    INNER JOIN tramo t ON re.tramo = t.id_tramo
+    INNER JOIN centrales t_origen ON t.tramo_origen = t_origen.id_central
+    INNER JOIN centrales t_destino ON t.tramo_destino = t_destino.id_central
+    INNER JOIN conduce con ON re.conduce = con.id_conduce
+    INNER JOIN chofer ch ON con.chofer = ch.rfc;
+
+    /* 8. Numero y Nombre de ruta con menor afluencia de pasaje. */
+
+    SELECT b.id_reserva, COUNT(res.ruta) AS BOLETOS_VENDIDOS, r_origen.nombre_central AS ruta_origen, r_destino.nombre_central AS ruta_destino
+    FROM boleto b
+    INNER JOIN reservacion res ON b.id_reserva = res.folio_reserva
+    INNER JOIN ruta r ON res.ruta = r.id_ruta
+    INNER JOIN centrales r_origen ON r.origen= r_origen.id_central
+    INNER JOIN centrales r_destino ON r.destino = r_destino.id_central
+    GROUP BY b.id_reserva, r_origen.nombre_central, r_destino.nombre_central
+    ORDER BY  BOLETOS_VENDIDOS ASC;
+
+    /*  9. Numero y Nombre de ruta con mayor afluencia de pasaje.*/
+
+    SELECT b.id_reserva, COUNT(res.ruta) AS BOLETOS_VENDIDOS, r_origen.nombre_central AS ruta_origen, r_destino.nombre_central AS ruta_destino
+    FROM boleto b
+    INNER JOIN reservacion res ON b.id_reserva = res.folio_reserva
+    INNER JOIN ruta r ON res.ruta = r.id_ruta
+    INNER JOIN centrales r_origen ON r.origen= r_origen.id_central
+    INNER JOIN centrales r_destino ON r.destino = r_destino.id_central
+    GROUP BY b.id_reserva, r_origen.nombre_central, r_destino.nombre_central
+    ORDER BY  BOLETOS_VENDIDOS DESC;
+
+    /* 10 Listado de rutas más costeables. */
+
+    SELECT res.ruta, COUNT(res.ruta) AS BOLETOS_VENDIDOS, SUM(b.precio) AS Ganancia
+    FROM boleto b
+    INNER JOIN reservacion res ON b.id_reserva = folio_reserva
+    GROUP by res.ruta
+    ORDER BY Ganancia;
